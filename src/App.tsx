@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {CssBaseline} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
+import {theme} from "./theme";
+import React from "react";
+import CharacterPage from "./pages/CharacterPage";
+import {QueryClient, QueryClientProvider} from "react-query";
+import HomePage from "./pages/HomePage";
+import EpisodePage from "./pages/EpisodePage";
+import LocationPage from "./pages/LocationPage";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AppOwnProps {}
 
-export default App;
+const queryClient = new QueryClient();
+const routes = () => {
+    return (
+        <Routes>
+            <Route path="/" element={<HomePage/>} />
+            <Route path="/characters/:characterId" element={<CharacterPage/>} />
+            <Route path="/episodes/:episodeId" element={<EpisodePage/>} />
+            <Route path="/locations/:locationId" element={<LocationPage/>} />
+        </Routes>
+    );
+};
+    export const App: React.FC<AppOwnProps> = () => {
+        return (
+            <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <BrowserRouter>{routes()}</BrowserRouter>
+            </ThemeProvider>
+            </QueryClientProvider>
+        );
+    };
