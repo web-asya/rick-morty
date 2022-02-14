@@ -140,7 +140,7 @@ const CharacterPage = (): ReactElement => {
     return (
         <Grid container>
             <ButtonAppBar/>
-            <Grid container sm={12} style={{display: "flex", flexWrap: "wrap", justifyContent: "center"}}>
+            <Grid container style={{display: "flex", flexWrap: "wrap", justifyContent: "center"}}>
                 {renderCharacter()}
             </Grid>
         </Grid>
