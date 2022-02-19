@@ -1,11 +1,11 @@
-import React, {memo, ReactElement} from "react";
+import React, {ChangeEvent, memo, ReactElement, SyntheticEvent} from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import {useQuery} from "react-query";
 import axios from "axios";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import {Link, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
 import {styled} from "@mui/system";
 import Card from "@mui/material/Card";
 import {
@@ -24,30 +24,40 @@ import ButtonAppBar from "../components/ButtonAppBar";
 import {Formik, useFormik} from "formik";
 import {CharactersCards, Filter} from "../components/CharactersCards";
 
-
-
-
 interface State {
     status: string;
     gender: string;
     name: string;
 }
+
 type RouteParams = {
     page: string;
 };
 
 const HomePage = (): ReactElement => {
+    const search = useLocation().search;
     const [filters, setFilters] = React.useState<Filter>({
-        status: "",
-        gender: "",
-        name: "",
+        status: new URLSearchParams(search).get("status") ? String(new URLSearchParams(search).get("status")) : "",
+        gender: new URLSearchParams(search).get("gender") ? String(new URLSearchParams(search).get("gender")) : "",
+        name: new URLSearchParams(search).get("name") ? String(new URLSearchParams(search).get("name")) : "",
     });
+    const navigate = useNavigate();
 
+    console.log(search);
+    const pageQuery = new URLSearchParams(search).get("page") ? Number(new URLSearchParams(search).get("page")) : 1;
 
+    const [page, setPage] = React.useState(pageQuery);
+
+    const handleChangeFilter = (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | SelectChangeEvent, filterName: string) => {
+        const newFilters = {...filters, [filterName]: e.target.value};
+        setFilters(newFilters);
+        setPage(1);
+        navigate("/?" + (new URLSearchParams({...newFilters, page: String(page)}).toString()));
+    };
     return (
         <Grid container>
             <ButtonAppBar/>
-            <Grid container style={{justifyContent:"space-between", padding:"30px 60px 30px 60px"}}>
+            <Grid container style={{justifyContent: "space-between", padding: "30px 60px 30px 60px"}}>
                 <Grid item xs={3}>
                     {/*<Formik initialValues={{ name: "" }}*/}
                     {/*        onSubmit={(values, actions) => {*/}
@@ -61,10 +71,7 @@ const HomePage = (): ReactElement => {
                     {/*        <form onSubmit={handleSubmit}>*/}
                     <TextField id="outlined-basic" label="Outlined" variant="outlined" value={filters.name}
                                onChange={(e) => {
-                                   setFilters({
-                                       ...filters,
-                                       name: e.target.value,
-                                   });
+                                   handleChangeFilter(e, "name");
                                }}
                                fullWidth
                                InputProps={{
@@ -84,10 +91,7 @@ const HomePage = (): ReactElement => {
                             value={filters.status}
                             label="Status"
                             onChange={(e) => {
-                                setFilters({
-                                    ...filters,
-                                    status: e.target.value,
-                                });
+                                handleChangeFilter(e, "status");
                             }}
                         >
                             <MenuItem value={"Alive"}>Alive</MenuItem>
@@ -106,11 +110,9 @@ const HomePage = (): ReactElement => {
                             value={filters.gender}
                             label="Gender"
                             onChange={(e) => {
-                                setFilters({
-                                    ...filters,
-                                    gender: e.target.value,
-                                });
+                                handleChangeFilter(e, "gender");
                             }}
+
                         >
                             <MenuItem value={"Female"}>Female</MenuItem>
                             <MenuItem value={"Male"}>Male</MenuItem>
@@ -123,7 +125,7 @@ const HomePage = (): ReactElement => {
                 </Grid>
 
             </Grid>
-            <CharactersCards filter={filters} />
+            <CharactersCards filters={filters} pageNum={page} pageHandler={setPage}/>
         </Grid>
     );
 };

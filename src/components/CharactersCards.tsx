@@ -1,4 +1,4 @@
-import React, {memo, ReactElement} from "react";
+import React, {memo, ReactElement, useEffect} from "react";
 import {useQuery} from "react-query";
 import axios from "axios";
 import CardMedia from "@mui/material/CardMedia";
@@ -20,11 +20,12 @@ import {
     TextField
 } from "@mui/material";
 import {Character, CharactersData, Info} from "../api";
-import ButtonAppBar from "../components/ButtonAppBar";
-import {Formik, useFormik} from "formik";
+
 
 interface Props {
-    filter: Filter
+    filters: Filter,
+    pageNum: number,
+    pageHandler: any //todo
 }
 
 export interface Filter {
@@ -44,35 +45,49 @@ const CharacterCard = styled(Card)({ //todo
     display: "flex",
     flexDirection: "column",
     flexWrap: "nowrap",
-    height: 250,
-    width: 200,
+    height: 270,
+    width: 210,
 });
 
-export const CharactersCards = ({filter}: Props): any => {
-    const search = useLocation().search;
-    const page = new URLSearchParams(search).get("page");
-
-    const [pageNumber, setPageNumber] = React.useState(Number(page));
+export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => {
     const navigate = useNavigate();
+    // const a = false;
+
+    // useEffect(() => {
+    //     // addEventListener("popstate",function(e){
+    //     //     alert("yeees!");
+    //     // },false);
+    //     setPageNumber(1);
+    //     console.log(filter.gender);
+    //     navigate({pathname: "/",search:`?page=${page}&gender=${filter.gender}&status=${filter.status}`});
+    // }, [filter.gender, filter.status, filter.name]);
+
     const {isLoading, data, isError} = useQuery<CharactersData>(
-        ["getCharacters", pageNumber, filter.name, filter.status, filter.gender],
+        ["getCharacters", pageNum, filters.name, filters.status, filters.gender],
         () => {
             let queryString = "";
-            if (filter.status !== "" && filter.status !== "None") {
-                queryString += `&status=${filter.status}`;
+            if (filters.status !== "" && filters.status !== "None") {
+                // navigate({pathname: "/",search:`?page=${pageNum}&gender=${filter.gender}&status=${filter.status}`});
+                queryString += `&status=${filters.status}`;
+            }
+            if (filters.gender !== "" && filters.gender !== "None") {
+                // navigate({pathname: "/",search:`?page=${pageNum}&gender=${filter.gender}&status=${filter.status}`});
+                queryString += `&gender=${filters.gender}`;
+                // navigate({pathname: "/",search:`?page=1&gender=${filter.gender}`} );
+                // if (!a){
+                //     setPageNumber(1);
+                //     a = true;
+                //     console.log(a);
+                // }
+
             }
 
-            if (filter.gender !== "" && filter.gender !== "None") {
-                queryString += `&gender=${filter.gender}`;
+            if (filters.name !== "" && filters.name !== "None" && filters.name.length >= 3) {
+                queryString += `&name=${filters.name}`;
+
             }
-
-            if (filter.name !== "" && filter.name.length >= 3) {
-                queryString += `&name=${filter.name}`;
-            }
-
-            console.log(queryString);
-
-            return axios.get(`https://rickandmortyapi.com/api/character/?page=${pageNumber}${queryString}`)
+            console.log(pageNum);
+            return axios.get(`https://rickandmortyapi.com/api/character/?page=${pageNum}${queryString}`)
                 .then((response) => response.data);
 
         }
@@ -90,14 +105,6 @@ export const CharactersCards = ({filter}: Props): any => {
         return characters.map((character: Character, index) => {
             return (
                 <Grid item key={index} onClick={() => navigate(`/characters/${character.id}`)}>
-                    {/*<Link*/}
-                    {/*    to={`/characters/${character.id}`}*/}
-                    {/*    key={index}*/}
-                    {/*    style={{*/}
-                    {/*        color: "inherit",*/}
-                    {/*        textDecoration: "inherit",*/}
-                    {/*    }}*/}
-                    {/*>*/}
                         <CharacterCard key={index}>
                             <CardMedia
                                 component="img"
@@ -111,7 +118,6 @@ export const CharactersCards = ({filter}: Props): any => {
                                 </Typography>
                             </CardContent>
                         </CharacterCard>
-                    {/*</Link>*/}
                 </Grid>
             );
         });
@@ -126,10 +132,14 @@ export const CharactersCards = ({filter}: Props): any => {
                 <Pagination count={information.pages}
                             color="secondary"
                             variant="outlined"
-                            page={pageNumber}
+                            page={pageNum}
                             onChange={(e, value) => {
-                                navigate({pathname: "/",search:`?page=${value}`});
-                                setPageNumber(value);
+                                console.log(value);
+
+                                // navigate({pathname: "/",search:`?page=${value}&gender=${filter.gender}&status=${filter.status}&name=${filter.name}`});
+                                navigate({pathname: "/",search:"?" + new URLSearchParams({...filters, page: String(value)}).toString()});
+
+                                pageHandler(value);
                             }}/>
             </Stack>
         </Grid>
