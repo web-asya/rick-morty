@@ -57,11 +57,13 @@ export interface Episode {
 
 
 export const parseIds = (apiUrls: string[]) => {
+    // Не критично, но можно проще - apiUrls.map(parseId);
     return apiUrls.map((url: string) => {
         return parseId(url);
     });
 };
 
 export const parseId = (apiUrl: string) => {
+    // Очень изящно. Круто!
     return apiUrl.split("/").pop();
 };

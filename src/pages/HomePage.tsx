@@ -1,3 +1,4 @@
+// Много неиспользуемых импортов. Не критично, но на реальных проектах приходится следить и удалять их, тк в некоторых местах за этим цепляются.
 import React, {ChangeEvent, memo, ReactElement, SyntheticEvent} from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import {useQuery} from "react-query";
@@ -59,6 +60,7 @@ const HomePage = (): ReactElement => {
             <ButtonAppBar/>
             <Grid container style={{justifyContent: "space-between", padding: "30px 60px 30px 60px"}}>
                 <Grid item xs={3}>
+                    {/* Лучше удалить закомментированный код. А то, что Formik задействовала - круто! */}
                     {/*<Formik initialValues={{ name: "" }}*/}
                     {/*        onSubmit={(values, actions) => {*/}
                     {/*            setTimeout(() => {*/}

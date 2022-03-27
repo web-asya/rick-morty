@@ -48,9 +48,10 @@ const CharacterCard = styled(Card)({ //todo
     height: 270,
     width: 210,
 });
-
+// Некритично, но почему-то в ButtonAppBar.tsx используются именованные функции, а здесь arrow-функции - лучше не мешать стили объявления компонентов без видимой на то причины
 export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => {
     const navigate = useNavigate();
+    // Закомментированный код лучше стирать
     // const a = false;
 
     // useEffect(() => {
@@ -65,6 +66,15 @@ export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => 
     const {isLoading, data, isError} = useQuery<CharactersData>(
         ["getCharacters", pageNum, filters.name, filters.status, filters.gender],
         () => {
+            // Здесь в целом решение недостаточно обобщенное. Я бы подумал над следующим
+            /**
+             * 1)Заместо проверки каждого из 3-х полей по отдельности(status, gender, name) использовать for..in loop - например
+             * for (let key in filters)
+             * Подумай, как можно это реализовать
+             * 2)Некритично, но заместо filters.status !== "" и тому подобных, использовать неявные преобразования
+             * if (filters[key] && filters[key] !== "None") - это то же самое, что if (Boolean(filters[key]) && filters[key] !== "None") - при этом обработается проверка на пустую строку.
+             * 3)Если реализовать предыдущие пункты, то переменная queryString не нужна
+             */
             let queryString = "";
             if (filters.status !== "" && filters.status !== "None") {
                 // navigate({pathname: "/",search:`?page=${pageNum}&gender=${filter.gender}&status=${filter.status}`});
@@ -86,6 +96,7 @@ export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => 
                 queryString += `&name=${filters.name}`;
 
             }
+            // Не забывай вырезать логи в рабочем проекте - некритично, но в реальной работе лучше за этим следить
             console.log(pageNum);
             return axios.get(`https://rickandmortyapi.com/api/character/?page=${pageNum}${queryString}`)
                 .then((response) => response.data);
@@ -95,6 +106,7 @@ export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => 
 
     if (isLoading) return <span>Загрузка</span>;
     if (isError) return <span>Ошибка</span>;
+    // Можно как if (!data). Так же я бы вместо выброса исключения рендерил <span>Ошибка</span>, чтобы приложение не ломалось из-за одного компонента.
     if (data === undefined) {
         throw new Error("Unexpected type");
     }
@@ -103,6 +115,8 @@ export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => 
 
     const renderCharacters = () => {
         return characters.map((character: Character, index) => {
+            // Не рекомендуется использовать key={index} - если будешь показывать, как проект в портфолио докопаются. Подробности вот тут -
+            // https://reactjs.org/docs/lists-and-keys.html?msclkid=6913533aadec11ec9395edf832d32555#keys
             return (
                 <Grid item key={index} onClick={() => navigate(`/characters/${character.id}`)}>
                         <CharacterCard key={index}>
@@ -134,9 +148,11 @@ export const CharactersCards = ({filters, pageNum, pageHandler}: Props): any => 
                             variant="outlined"
                             page={pageNum}
                             onChange={(e, value) => {
+                                // При сдаче на код ревью не забывай удалять логи и комментарии нерабочие.
                                 console.log(value);
 
                                 // navigate({pathname: "/",search:`?page=${value}&gender=${filter.gender}&status=${filter.status}&name=${filter.name}`});
+                                // В search переменную запишется `?` даже, если URLSearchParams выражение вернет пустую строку. Если строка никогда не будет пустой, то можно закрыть глаза
                                 navigate({pathname: "/",search:"?" + new URLSearchParams({...filters, page: String(value)}).toString()});
 
                                 pageHandler(value);

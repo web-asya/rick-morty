@@ -32,6 +32,7 @@ const CharacterPage = (): ReactElement => {
     const {isLoading, data, isError} = useQuery<Character>(
         "getCharacter",
         () =>
+            // Тоже - базовый урл убираем в config.ts
             axios.get(`https://rickandmortyapi.com/api/character/${characterId}`)
                 .then((response) => response.data)
     );
@@ -39,6 +40,7 @@ const CharacterPage = (): ReactElement => {
     if (isError) return <span>Ошибка</span>;
     const character = data;
 
+    // Тоже, что и в предыдущих местах - в компонентах вместо выброса исключений выводим заглушки. Исключения выбрасываем в хелперах/сервисах
     if (character === undefined) {
         throw new Error("Unexpected logic");
     }
@@ -49,6 +51,7 @@ const CharacterPage = (): ReactElement => {
             return (
                 <Link
             to={`/episodes/${episodeId}`}
+            {/* key={index} - это неок */}
             key={index}
             style={{
 
@@ -62,7 +65,7 @@ const CharacterPage = (): ReactElement => {
     };
 
     const renderLocations = (character:Character) => {
-
+            // Не критично, но в случае, если character.location.name === "unknown" locationId нам не нужно, потому его лучше разместить ПОСЛЕ if блока.
             const locationId = parseId(character.location.url);
             if (character.location.name === "unknown"){
                 return character.location.name;
@@ -81,10 +84,13 @@ const CharacterPage = (): ReactElement => {
 
     };
     const renderCharacterType=()=>{
+        // Не критично, но обычно такие вещи я пишу вот так -
+        // return character.type || <Typography />;
        return character.type === ""
            ? ""
            : <Typography variant="body2" color="text.secondary" >Type: {character.type}</Typography>;
     };
+    // Не вижу смысла выносить верстку в эту функцию. От нее(функции) можно избавиться, тк она не несет доп. ценности, и писать в return (...)
     const renderCharacter = () => {
         const date = new Date(character.created);
         const dt = date.toLocaleDateString("RU-ru");

@@ -46,7 +46,7 @@ const EpisodePage = (): ReactElement=> {
     }
 
 
-
+    // То же самое - не вижу доп. ценности в этой функции - я бы вынес в return (...)
     const renderEpisode = () => {
         const date = new Date(episode.created);
         const dt = date.toLocaleDateString("RU-ru");
