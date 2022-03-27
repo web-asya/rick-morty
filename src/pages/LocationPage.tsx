@@ -47,6 +47,7 @@ const LocationPage = (): ReactElement => {
         throw new Error("Unexpected logic");
     }
 
+    // По аналогии с предыдущими компонентами
     const renderLocation = () => {
         const date = new Date(location.created);
         const dt = date.toLocaleDateString("RU-ru");

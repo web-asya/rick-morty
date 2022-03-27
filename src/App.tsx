@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import EpisodePage from "./pages/EpisodePage";
 import LocationPage from "./pages/LocationPage";
 
+//А есть ли смысл в пустом интерфейсе? Можно React.FC<{}>
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AppOwnProps {}
 
