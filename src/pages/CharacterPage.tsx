@@ -85,7 +85,7 @@ const CharacterPage = (): ReactElement => {
     };
     const renderCharacterType=()=>{
         // Не критично, но обычно такие вещи я пишу вот так -
-        // return character.type || <Typography />;
+        // return character.type && <Typography />;
        return character.type === ""
            ? ""
            : <Typography variant="body2" color="text.secondary" >Type: {character.type}</Typography>;
